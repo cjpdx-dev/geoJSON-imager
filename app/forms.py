@@ -11,6 +11,9 @@ class CreateAccountForm(FlaskForm):
 	email = StringField('Email', validators=[DataRequired()])
 	username = StringField('Username', validators=[DataRequired()])
 	password= PasswordField('Password', validators=[DataRequired()])
+	
+	# not sure if I'm going to use these or not
 	firstName = StringField('First name', validators=[DataRequired()])
 	zipcode = IntegerField('Zip Code', validators=[DataRequired()])
+	
 	submit = SubmitField('Create Account')

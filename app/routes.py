@@ -46,12 +46,12 @@ def upload_file():
 
 		payload = {'file uploaded': 'true', 'file_path': file_path}
 		response = jsonify(payload)
-		return redirect('/mapView', method='GET')
+		return redirect('/mapView')
 
 @app.route('/mapView', methods=['GET'])
 def map_view():
 
-	return render_template('mapView.html', title='View Map', geoJSON_path=response)
+	return render_template('mapView.html', title='View Map')
 
 
 

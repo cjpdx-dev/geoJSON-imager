@@ -35,7 +35,7 @@
         <div id="map-view-container" style="height: 180px;"></div>
 
         <script>
-            var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+            var mymap = L.map('map-view-container').setView([51.505, -0.09], 13);
 
             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', 
                 {

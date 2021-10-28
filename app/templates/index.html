@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<div>
+		<h3> Get Started - Upload a GeoJSON (.geojson) file now! </h3>
+
+		<div class="geojson-upload-box">
+				<form method="POST" action="/upload" enctype="multipart/form-data">
+					<p> <input type="file" name="file"/> </p>
+					<p> <input type="submit" value="Upload"/> </p>
+				</form>		
+		</div>
+
+	<div class="login-nav">
+		<a href="/login"> Login </a>
+		<br>
+		<a href="/createAccount"> Create Account </a>
+	</div>
+
+{% endblock %}		

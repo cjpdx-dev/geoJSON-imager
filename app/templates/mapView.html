@@ -46,23 +46,25 @@
                     zoomOffset: -1,
                     accessToken: 'pk.eyJ1IjoiY2pwZHhkZXYiLCJhIjoiY2t2YWFvb2hxMDFpNTJ1bnk3dGxxenhhdSJ9.FKObwabTnBhJEg2PEAfdZw'
                 }).addTo(mymap);
+
+
+            L.geoJSON
         </script>
 
+        <form action="/location" method="GET">
+            <button name="get_location" value="get location"> Get Current Location Info </button>
+        </form>
+
         <hr>
-        {% with messages = get_flashed_messages() %}
+		{% with messages = get_flashed_messages() %}
         {% if messages %}
-        
         <ul>
             {% for message in messages %}
             <li>{{ message }}</li>
             {% endfor %}
         </ul>
-        
         {% endif %}
         {% endwith %}
-        
-        <hr>
-        {% block content %}{% endblock %}
 
     </body>
 </html>

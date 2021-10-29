@@ -54,6 +54,18 @@ def map_view():
 	return render_template('mapView.html', title='View Map')
 
 
+# placeholder route for Alyssa's microservice
+@app.route('/location', methods=['GET'])
+def get_location_data():
+	
+	flash("Current Weather: Sunny")
+	flash("Population: 8.982 million" )
+	return render_template('mapView.html', title="View Map")
+
+
+
+
+
 
 
 

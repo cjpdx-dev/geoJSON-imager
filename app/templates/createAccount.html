@@ -2,6 +2,16 @@
 
 {% block content %}
 
+    <script>
+        window.addEventListener("beforeunload", function (e) {
+        var confirmationMessage = 'You have unsaved data. Are you sure you want to leave this page?' + 
+                                    'Your data will not be saved.';
+
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage; 
+        });
+    </script>
+
 	<h3> Create Account </h3>
 
     <form action="" method="post" novalidate>
@@ -41,6 +51,10 @@
         <p>{{ form.submit() }}</p>
     
     </form>
+
+    <p>
+        <a href="/index">Return To Home</a>
+    </p>
 
 {% endblock %}
 

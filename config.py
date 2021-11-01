@@ -6,5 +6,6 @@ class Config(object):
 	# placeholder for database - config the upload folder for map uploads
 	# and specify max file size
 	
-	UPLOAD_FOLDER = "uploads/"
+	UPLOAD_FOLDER = "data/uploads/"
 	MAX_CONTENT_LENGTH = 1024 * 1024 * 1024
+	MONGO_URI = "mongodb://localhost:27017/zipcodes"

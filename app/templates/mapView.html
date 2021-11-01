@@ -46,9 +46,7 @@
                     zoomOffset: -1,
                     accessToken: 'pk.eyJ1IjoiY2pwZHhkZXYiLCJhIjoiY2t2YWFvb2hxMDFpNTJ1bnk3dGxxenhhdSJ9.FKObwabTnBhJEg2PEAfdZw'
                 }).addTo(mymap);
-
-
-            L.geoJSON
+            L.geoJSON(uploaded_geoJSON).addTo(mymap);
         </script>
 
         <form action="/location" method="GET">
@@ -66,5 +64,9 @@
         {% endif %}
         {% endwith %}
 
+        <p>
+			<a href="/index">Return To Home</a>
+		</p>
+        
     </body>
 </html>

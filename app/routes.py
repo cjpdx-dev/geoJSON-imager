@@ -1,13 +1,12 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify, session
 from flask_restful import Resource, Api
-
 from werkzeug.exceptions import HTTPException
 
 from app import app
+from app import db
+
 from app.forms import LoginForm
 from app.forms import CreateAccountForm
-
-from app import db
 
 import urllib.request
 import json
@@ -54,6 +53,19 @@ def map_view():
 	# when redirecting from /upload or /profile
 
 	return render_template('mapView.html', title='View Map')
+
+# Documentation
+# placeholder route for Alyssa's microservice
+#
+#
+@app.route('/location', methods=['GET'])
+def get_location_data():
+	flash("Current Weather: Sunny")
+	flash("Population: 8.982 million" )
+	# TODO: need to just update the page, not call a seperate route and render mapView.html again
+	# which refreshes the mapView page and reloads the map, which will lead to user losing data
+	return render_template('mapView.html', title="View Map")
+
 
 # Documentation
 #
@@ -142,20 +154,6 @@ def profile():
 		return render_template('profile.html', title="Profile")
 
 
-# Documentation
-# placeholder route for Alyssa's microservice
-#
-#
-@app.route('/location', methods=['GET'])
-def get_location_data():
-	
-	flash("Current Weather: Sunny")
-	flash("Population: 8.982 million" )
-	# TODO: need to just update the page, not render mapView.html again
-	# which refreshes the page and reloads the map
-	return render_template('mapView.html', title="View Map")
-
-
 # My service
 #
 #
@@ -164,8 +162,10 @@ def get_location_data():
 def validate_zip():
 	zipcode_query = request.args.get('zipcode')
 	query_result = db.zipcodes.find_one({"_id": zipcode_query})
+	
 	if query_result:
 		payload = {"valid_zip": True, "city": query_result["city"], "state": query_result["state"] }
 	else:
 		payload = {"valid_zip": False, "city": "", "state": "" }
+	
 	return jsonify(payload)

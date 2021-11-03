@@ -19,6 +19,7 @@ app.config.from_object(Config)
 mongodb_client = PyMongo(app)
 db = mongodb_client.db
 
+
 db_scripts.repopulate_db(mongodb_client)
 
 from app import routes

@@ -1,5 +1,4 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify, session
-from flask_restful import Resource, Api
 from werkzeug.exceptions import HTTPException
 
 from app import app

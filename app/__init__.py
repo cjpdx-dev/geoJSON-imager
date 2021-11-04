@@ -1,6 +1,5 @@
 
 from flask import Flask, request
-from flask_restful import Resource, Api
 from flask_pymongo import PyMongo
 
 # # imports for CLI command implementation

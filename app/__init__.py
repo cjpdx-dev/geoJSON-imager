@@ -2,34 +2,32 @@
 from flask import Flask, request
 from flask_pymongo import PyMongo
 
-# # imports for CLI command implementation
-# import click
-# from flask.cli import AppGroup
-
 from config import Config
-import db_scripts as db_scripts
-
-# os imports
-import atexit
+from mongo_driver import MongoDriver
+connection_string = "mongodb+srv://cjpdx:OsY8rrimVnY6vmvB@cluster0.smkta.mongodb.net/db_361?retryWrites=true&w=majority"
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# TODO: add a CLI command to flask CLI for migrating/repopulating zipcodes db
-# see: https://flask.palletsprojects.com/en/2.0.x/cli/
-# or, just ignore this and drop the table each time the app is shutdown
+db_driver = MongoDriver(app)
+test_param = {"hello" : "world"}
+query_result = db_driver.test_db(test_param)
 
-mongodb_client = PyMongo(app)
-db = mongodb_client.db
+# Uncomment to popuate atlas db (yeah...there has to be a better way than this..)
+print("For admins only: Do you want to populate the Atlas database? (Y/N): ")
+confirm = input()
+if confirm == "Y" or confirm == "y":
+    print("Attempting to populate Atlas database...")
+    db_driver.populate_db()
+else:
+    print("Skipped")
 
-if "zipcodes" not in db.list_collection_names():
-    print("creating collection \"zipcodes\" ")
-    db.create_collection("zipcodes")
-
-    db_scripts.create_zipcodes_db(mongodb_client)
-
+# mongo_client = PyMongo(app, connection_string)
+# db = mongo_client.db
+# query_result = db.zipcodes.find_one({"hello": "world"})
+# zipcode_collection = db.get_collection("zipcodes")
+# query_result = zipcode_collection.find_one({"hello": "world"})
+print(query_result)
 
 from app import routes
-
-

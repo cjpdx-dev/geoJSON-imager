@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, redirect, request, jsonify, ses
 from werkzeug.exceptions import HTTPException
 
 from app import app
-from app import db
+# from app import db
 
 from app.forms import LoginForm
 from app.forms import CreateAccountForm
@@ -168,17 +168,3 @@ def validate_zip():
 		payload = {"valid_zip": False, "city": "", "state": "" }
 	
 	return jsonify(payload)
-
-
-
-# # TODO: Remove this end point before migrating to a production server!
-# def shutdown_server():
-#     func = request.environ.get('werkzeug.server.shutdown')
-#     if func is None:
-#         raise RuntimeError('Not running with the Werkzeug Server')
-#     func()
-
-# @app.route('/shutdown', methods=['GET'])
-# def shutdown():
-#     shutdown_server()
-#     return 'Server shutting down...'

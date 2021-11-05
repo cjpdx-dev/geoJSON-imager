@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, redirect, request, jsonify, ses
 from werkzeug.exceptions import HTTPException
 
 from app import app
-# from app import db
+from app import db_driver
 
 from app.forms import LoginForm
 from app.forms import CreateAccountForm
@@ -159,12 +159,7 @@ def profile():
 #
 @app.route('/validate_zip', methods=['GET'])
 def validate_zip():
+	
 	zipcode_query = request.args.get('zipcode')
-	query_result = db.zipcodes.find_one({"_id": zipcode_query})
-	
-	if query_result:
-		payload = {"valid_zip": True, "city": query_result["city"], "state": query_result["state"] }
-	else:
-		payload = {"valid_zip": False, "city": "", "state": "" }
-	
+	payload = db_driver.find_zipcode(request.args.get('zipcode'))
 	return jsonify(payload)

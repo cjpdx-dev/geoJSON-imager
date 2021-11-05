@@ -6,7 +6,15 @@ Getting Started
 
 	Prerequisites: 
 		pip
+		
 		Python Version 3.7.6
+		
+		MongoDB
+
+			Windows: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
+
+			macOS: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
+
 
 Installation and Setup
 

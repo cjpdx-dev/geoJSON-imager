@@ -12,7 +12,10 @@ class AtlasReadException(Exception):
 class MongoDriver():
 
     def __init__(self, app):
-        # add error handling for bad connection
+        # TODO: add error handling for bad connection
+        # TODO: Look into coding a fix for Melissa's error:
+        # https://stackoverflow.com/questions/54484890/ssl-handshake-issue-with-pymongo-on-python3/54511693#54511693
+        
         self.driver_client = PyMongo(app, API_connection_string)
         self.db = self.driver_client.db
 

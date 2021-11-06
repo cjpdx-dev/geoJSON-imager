@@ -1,4 +1,5 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify, session
+from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
 from app import app
@@ -162,4 +163,6 @@ def validate_zip():
 	
 	zipcode_query = request.args.get('zipcode')
 	payload = db_driver.find_zipcode(request.args.get('zipcode'))
-	return jsonify(payload)
+	response = jsonify(payload)
+	response.headers.add("Access-Control-Allow-Origin", "*")
+	return response

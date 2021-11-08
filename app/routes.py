@@ -1,7 +1,5 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify, session
 
-
-
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
@@ -64,24 +62,18 @@ def map_view():
 
 	return render_template('mapView.html', title='View Map')
 
-
-
-
-
-
 # Documentation
 # Placeholder route for Alyssa's microservice
-# If we want to use async:
+# If we want to try to do this with async later...
 # ??? https://stackoverflow.com/questions/49822552/python-asyncio-typeerror-object-dict-cant-be-used-in-await-expression
 # ??? https://stackoverflow.com/questions/33357233/when-to-use-and-when-not-to-use-python-3-5-await/33399896#33399896
-# use app.before_request and after_request to handle thread/loop creation?
-
-
+# use app.before_request() and after_request() to handle thread/loop creation?
 @app.route('/location', methods=['GET'])
 def get_location_data():
 
 	api_address = "http://localhost:3000/location?zip={}".format(request.args.get("zipcode"))
 	
+	# ??? use requests or python native urllib.request.urlopen(url)?
 	location_response = requests.get(api_address)
 
 	if location_response:
@@ -94,9 +86,39 @@ def get_location_data():
 	
 	return redirect('/mapView')
 
+
 # Documentation
 #
-#
+@app.route('/createAccount', methods=['GET', 'POST'])
+def createAccount():
+	
+	create_form = CreateAccountForm()
+	
+	if request.method == 'GET':
+			return render_template('createAccount.html', title='Create Account', form=create_form)
+	else:
+		if create_form.validate_on_submit():
+
+# 			# !!! This is a major security vulnerability - change before migrating to production build
+# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions
+			response = requests.post('http://localhost:3000/create', json=request.form)
+			
+			if response:
+				if response.status_code == 200:
+					flash('Account Created - Please Login')
+					return redirect('/login')
+				
+				elif response.status_code == 418:
+					flash('Username already exists - please choose a different username and try again.')
+				
+				else:
+					flash(str(response.status_code) + 'Sorry, an unknown error occured - your account was not created. Please try again later.')
+			else:
+				flash('Error: no response received from single sign on service')
+		
+		return render_template('createAccount.html', title="Create Account", form=create_form)
+
+# Documentation
 #
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -107,68 +129,13 @@ def login():
 	
 	else:
 		if form.validate_on_submit():
-
+			
 			if get_sso_service(form) is True:
 				flash('Login Successful')
 				return redirect('/profile')
 
 		flash('Invalid Username or Password: Please Try Again')
 		return render_template('login.html', title='Login', form=form)
-
-
-# Documentation
-# Placeholder GET from melissa's SSO service
-#
-#
-def get_sso_service(form_data):
-	# url = melissa's url + form_data with or without api_key (use os.environ.get("API_KEY"))
-	# response = urllib.request.urlopen(url)
-	# data = response.read()
-	# dict = json.loads(data)
-
-	sso_success = True
-
-	if sso_success:
-		return True
-	else:
-		return False
-	 
-
-# Documentation
-#
-#
-#
-@app.route('/createAccount', methods=['GET', 'POST'])
-def createAccount():
-	
-	form = CreateAccountForm()
-	if request.method == 'GET':
-			return render_template('createAccount.html', title='Create Account', form=form)
-	else:
-		if form.validate_on_submit():
-			if post_sso_service(form) is True:
-				flash('Account Created - Please Login')
-				return redirect('/login')
-
-		flash('Account Creation Failed: Please Try Again')
-		return render_template('createAccount.html', title="Create Account", form=form)
-
-
-# Documentation
-# placeholder POST to Melissa's Single Sign On API
-#
-#
-def post_sso_service(form):
-	# url = melissa's url + form_data with or without api_key (use os.environ.get("API_KEY"))
-	if form:
-		sso_success = True
-	else:
-		sso_success = False
-
-	if sso_success:
-		return True
-	else:
-		return False
 
 
 # Documentation

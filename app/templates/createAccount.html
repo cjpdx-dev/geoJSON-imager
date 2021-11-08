@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <script>
+    <!-- <script>
         window.addEventListener("beforeunload", function (e) {
         var confirmationMessage = 'You have unsaved data. Are you sure you want to leave this page?' + 
                                     'Your data will not be saved.';
@@ -10,19 +10,13 @@
         (e || window.event).returnValue = confirmationMessage;
         return confirmationMessage; 
         });
-    </script>
+    </script> -->
 
 	<h3> Create Account </h3>
 
     <form action="" method="post" novalidate>
         
         {{ form.hidden_tag() }}
-        
-        <p>
-            {{ form.email.label }}
-            <br>
-            {{ form.email(size=32) }}
-        </p>
 
         <p>
             {{ form.username.label }}
@@ -43,9 +37,15 @@
         </p>
 
         <p>
-            {{ form.zipcode.label }}
+            {{ form.lastName.label }}
             <br>
-            {{ form.zipcode(size=32) }}
+            {{ form.lastName(size=32) }}
+        </p>
+
+        <p>
+            {{ form.zipCode.label }}
+            <br>
+            {{ form.zipCode(size=32) }}
         </p>
         
         <p>{{ form.submit() }}</p>

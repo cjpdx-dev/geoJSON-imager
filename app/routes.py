@@ -130,13 +130,18 @@ def login():
 	else:
 		if form.validate_on_submit():
 			
-			if get_sso_service(form) is True:
+			response = requests.post('http://localhost:3000/login', json=request.form)
+			
+			# !!! This is a major security vulnerability - change before migrating to production build
+# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions
+			
+			
+			if response and response.status_code == 200:
 				flash('Login Successful')
 				return redirect('/profile')
 
 		flash('Invalid Username or Password: Please Try Again')
 		return render_template('login.html', title='Login', form=form)
-
 
 # Documentation
 #

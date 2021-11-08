@@ -1,4 +1,7 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify, session
+
+
+
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
@@ -8,10 +11,17 @@ from app import db_driver
 from app.forms import LoginForm
 from app.forms import CreateAccountForm
 
+import asyncio
+import threading
+from concurrent.futures import ThreadPoolExecutor
+
 import urllib.request
+
+import requests
 import json
 import os
 
+_executor = ThreadPoolExecutor(1)
 
 # Documentation
 #
@@ -54,18 +64,35 @@ def map_view():
 
 	return render_template('mapView.html', title='View Map')
 
+
+
+
+
+
 # Documentation
-# placeholder route for Alyssa's microservice
-#
-#
+# Placeholder route for Alyssa's microservice
+# If we want to use async:
+# ??? https://stackoverflow.com/questions/49822552/python-asyncio-typeerror-object-dict-cant-be-used-in-await-expression
+# ??? https://stackoverflow.com/questions/33357233/when-to-use-and-when-not-to-use-python-3-5-await/33399896#33399896
+# use app.before_request and after_request to handle thread/loop creation?
+
+
 @app.route('/location', methods=['GET'])
 def get_location_data():
-	flash("Current Weather: Sunny")
-	flash("Population: 8.982 million" )
-	# TODO: need to just update the page, not call a seperate route and render mapView.html again
-	# which refreshes the mapView page and reloads the map, which will lead to user losing data
-	return render_template('mapView.html', title="View Map")
 
+	api_address = "http://localhost:3000/location?zip={}".format(request.args.get("zipcode"))
+	
+	location_response = requests.get(api_address)
+
+	if location_response:
+		print("Recieved response from port 3000")
+		print("current weather: ")
+		location_data = location_response.json()
+	
+		flash("Current Weather: " + str(location_data["weather"]["current"]))
+		flash("Five Day Forecast: " + str(location_data["weather"]["five_day"]))
+	
+	return redirect('/mapView')
 
 # Documentation
 #
@@ -98,6 +125,7 @@ def get_sso_service(form_data):
 	# response = urllib.request.urlopen(url)
 	# data = response.read()
 	# dict = json.loads(data)
+
 	sso_success = True
 
 	if sso_success:

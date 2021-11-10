@@ -71,16 +71,19 @@ def map_view():
 @app.route('/location', methods=['GET'])
 def get_location_data():
 
-	api_address = "http://localhost:3000/location?zip={}".format(request.args.get("zipcode"))
-	
+	zip = request.args.get('zipcode')
+	api_address = "http://localhost:3000/location?zip={}".format(zip)
+	print(api_address)
+
 	# ??? use requests or python native urllib.request.urlopen(url)?
 	location_response = requests.get(api_address)
+	print(location_response)
 
 	if location_response:
 		print("Recieved response from port 3000")
 		print("current weather: ")
 		location_data = location_response.json()
-	
+
 		flash("Current Weather: " + str(location_data["weather"]["current"]))
 		flash("Five Day Forecast: " + str(location_data["weather"]["five_day"]))
 	

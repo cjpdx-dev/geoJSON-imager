@@ -27,7 +27,7 @@
             </p>
         </div>
 
-        <div id="map-view-container" style="height: 180px;"></div>
+        <div id="map-view-container" style="height: 300px;"></div>
 
         <script>
             var mymap = L.map('map-view-container').setView([51.505, -0.09], 13);
@@ -44,8 +44,10 @@
             L.geoJSON(uploaded_geoJSON).addTo(mymap);
         </script>
 
-        <form action="/location" method="GET">
-            <button name="get_location" value="get location"> Get Current Location Info </button>
+        <form method="GET" action="/location">
+            <lable for="zipcode"> Current Zip Code: </lable>
+            <input type="text" name="zipcode">
+            <button type="submit" value="Submit"> Get Current Location Info </button>
         </form>
 
         <hr>

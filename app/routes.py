@@ -41,11 +41,11 @@ def upload_file():
 	
 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-		uploaded_file.save(file_path)
+		
+		# *** Saves the file to the server
+		# uploaded_file.save(file_path)
 
-		# payload = {'file uploaded': 'true', 'file_path': file_path}
-		# response = jsonify(payload)
-		return redirect('/mapView')
+		return redirect('/mapView', 200, )
 
 	else:
 		flash("Error: Please select a .geoJSON file.")
@@ -129,7 +129,6 @@ def login():
 	
 	if request.method == 'GET':
 			return render_template('login.html', title='Login', form=form)
-	
 	else:
 		if form.validate_on_submit():
 			
@@ -137,7 +136,6 @@ def login():
 			
 			# !!! This is a major security vulnerability - change before migrating to production build
 # 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions
-			
 			
 			if response and response.status_code == 200:
 				flash('Login Successful')

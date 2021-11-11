@@ -1,21 +1,49 @@
 {% extends "base.html" %}
 
-{% block content %}
+	{% block head %}
+		{{ super() }}
+		<style type="text/css">
+			.home-page-title h2 { display: none}
+			.home-footer-container { display: none}
+		</style>
+	{% endblock head %}
 
-	<div>
-		<h3> Get Started - Upload a GeoJSON (.geojson) file now! </h3>
+	{% block content %}
 
-		<div class="geojson-upload-box">
-				<form method="POST" action="/upload" enctype="multipart/form-data">
-					<p> <input type="file" name="file"/> </p>
-					<p> <input type="submit" value="Upload"/> </p>
-				</form>		
-		</div>
+		{% block header %}
+			<div class="home-page-title">
+				<h1> GeoJSON Imager </h1>
+				<h2> {{ title }} </h2>
+			</div>
+		{% endblock header %}
 
-	<div class="login-nav">
-		<a href="/login"> Login </a>
-		<br>
-		<a href="/createAccount"> Create Account </a>
-	</div>
 
-{% endblock %}		
+		{% block nav %}
+			<div class="nav-container">
+				<a href="/login"> Login </a>
+				<br>
+				<a href="/createAccount"> Create Account </a>
+			</div>
+		{% endblock nav %}
+
+
+		{% block main %}
+			<div class="geojson-upload-box">
+				<h3> Let's Get Started! Upload a GeoJSON (.geojson) file now </h3>
+					<form method="POST" action="/upload" enctype="multipart/form-data">
+						<p> <input type="file" name="file"/> </p>
+						<p> <input type="submit" value="Upload"/> </p>
+					</form>		
+			</div>
+
+		{% endblock main %}
+
+
+		{% block footer %}
+			<div class="home-footer-container">
+				<p> This is the index footer </p> 
+			</div>
+		{% endblock footer %} 
+
+	
+	{% endblock content %}

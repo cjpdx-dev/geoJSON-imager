@@ -1,35 +1,55 @@
 <!doctype html>
 
-<html>
+<html lang="en">
+
 	<head>
-		<title>{{ title }} - GeoJSON Imager </title>
+	{% block head %}
+		<link rel="stylesheet" href="../static/css/style.css">
+		<title> {{ title }} </title>
+	{% endblock head %}
 	</head>
 
-	<body>
-
-		<div class="base-title-heading">
-			<h1> GeoJSON Imager </h1>
-		</div>
+	
+	<body class="base-content">
+	{% block content %}
 		
-		<div class="base-title-details">
-			<ul>
-				<li> <a href="/index">Return To Home</a> </li>
-				<li> About </li>
-			</ul>
-		</div>
+		<header class="base-header"> 
+		{% block header %}
 
-		<hr>
-		{% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        <hr>
-		{% block content %}{% endblock %}
+		{% endblock header %}
+		</header>
 
+		
+		<nav class="base-nav">
+		{% block nav %}
+
+
+		{% endblock nav %}
+		</nav>
+
+
+		<main class="base-main">
+		{% block main %}
+
+			<div class="main-container">
+				<p> Main Block </p>
+			</main>div>
+			
+		{% endblock main %}
+		</main>
+
+
+		<footer class="base-footer">
+		{% block footer %}
+
+			<div class="footer-container">
+				<p> Base Footer  </p> 
+			</div>
+
+		{% endblock footer %}
+		</footer>
+	
+
+	{% endblock content %}
 	</body>
 </html>

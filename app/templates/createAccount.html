@@ -1,60 +1,80 @@
 {% extends "base.html" %}
 
-{% block content %}
+    {% block head %}
+        {{ super() }}
+    {% endblock head %}
 
-    <!-- <script>
-        window.addEventListener("beforeunload", function (e) {
-        var confirmationMessage = 'You have unsaved data. Are you sure you want to leave this page?' + 
-                                    'Your data will not be saved.';
 
-        (e || window.event).returnValue = confirmationMessage;
-        return confirmationMessage; 
-        });
-    </script> -->
+    {% block content %}
 
-	<h3> Create Account </h3>
+        {% block header %}
+            <div class="create-account-header-container">
+                <h1> GeoJSON Imager </h1>
+                <h2> {{ title }} </h2>
+            </div>
+        {% endblock header %}
 
-    <form action="" method="post" novalidate>
+
+        {% block nav %}
+            <div class="create-account-nav-container">
+                <a href="/"> Home </a>
+                <br>
+                <a href="/login"> Login </a>
+            </div>
+        {% endblock nav %}
+
+
+        {% block main %}
+
+            <form class="create-account-form" action="" method="post" novalidate>
         
-        {{ form.hidden_tag() }}
-
-        <p>
-            {{ form.username.label }}
-            <br>
-            {{ form.username(size=32) }}
-        </p>
+                {{ form.hidden_tag() }}
         
-        <p>
-            {{ form.password.label }}
-            <br>
-            {{ form.password(size=32) }}
-        </p>
-
-        <p>
-            {{ form.firstName.label }}
-            <br>
-            {{ form.firstName(size=32) }}
-        </p>
-
-        <p>
-            {{ form.lastName.label }}
-            <br>
-            {{ form.lastName(size=32) }}
-        </p>
-
-        <p>
-            {{ form.zipCode.label }}
-            <br>
-            {{ form.zipCode(size=32) }}
-        </p>
+                <p>
+                    {{ form.username.label }}
+                    <br>
+                    {{ form.username(size=32) }}
+                </p>
+                
+                <p>
+                    {{ form.password.label }}
+                    <br>
+                    {{ form.password(size=32) }}
+                </p>
         
-        <p>{{ form.submit() }}</p>
-    
-    </form>
+                <p>
+                    {{ form.firstName.label }}
+                    <br>
+                    {{ form.firstName(size=32) }}
+                </p>
+        
+                <p>
+                    {{ form.lastName.label }}
+                    <br>
+                    {{ form.lastName(size=32) }}
+                </p>
+        
+                <p>
+                    {{ form.zipCode.label }}
+                    <br>
+                    {{ form.zipCode(size=32) }}
+                </p>
+                    
+                <div class="submit-create-account">
+                    <p>
+                        {{ form.submit() }}
+                        <span class="create-account-error-alert"> 
+                            {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                <mark>{{ message }}</mark>
+                                {% endfor %}
+                            {% endif %}
+                            {% endwith %}
+                        </span>
+                    </p>
+                </div>
+            </form>
+        {% endblock main %}
 
-    <p>
-        <a href="/index">Return To Home</a>
-    </p>
-
-{% endblock %}
-
+    {% endblock content %}

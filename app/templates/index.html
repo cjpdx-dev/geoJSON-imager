@@ -6,6 +6,7 @@
 			.home-page-title h2 { display: none}
 			.home-footer-container { display: none}
 		</style>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
 	{% endblock head %}
 
 	{% block content %}
@@ -26,14 +27,17 @@
 			</div>
 		{% endblock nav %}
 
-
 		{% block main %}
 			<div class="geojson-upload-box">
 				<h3> Let's Get Started! Upload a GeoJSON (.geojson) file now </h3>
-					<form method="POST" action="/upload" enctype="multipart/form-data">
+					<form
+					method="POST" 
+					action="/mapView"
+					enctype="multipart/form-data" 
+					id="uploadForm">
 						<p> <input type="file" name="file"/> </p>
 						<p> <input type="submit" value="Upload"/> </p>
-					</form>		
+					</form>
 			</div>
 
 		{% endblock main %}

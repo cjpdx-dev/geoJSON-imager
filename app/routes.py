@@ -1,66 +1,101 @@
-from flask import Flask, render_template, flash, redirect, request, jsonify, session
+
+# Flask imports
+from flask import Flask
+from flask import render_template, flash, redirect, request, jsonify, session, make_response
 
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
+# Flask app imports
 from app import app
 from app import db_driver
 
+# FlaskForm imports
 from app.forms import LoginForm
 from app.forms import CreateAccountForm
 
-import asyncio
-import threading
-from concurrent.futures import ThreadPoolExecutor
-
+# Python stdlib imports
 import urllib.request
-
 import requests
 import json
 import os
+import codecs
+import io
 
-_executor = ThreadPoolExecutor(1)
+# For command line debugging
+import pdb
 
-# Documentation
-#
-#
-#
+# TODO: Documentation Needed
 @app.route('/')
 @app.route('/index')
 def index():
 	return render_template('index.html', title='Home')
 
 
-# Documentation
-#
-#
-#
+# TODO: Documentation Needed
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
 	uploaded_file = request.files['file']
-	
 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
-		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
 		
-		# *** Saves the file to the server
-		# uploaded_file.save(file_path)
-
-		return redirect('/mapView', 200, )
+		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+		uploaded_file.save(file_path)
+		
+		return redirect(urlfor('/mapView', file_path='file_path'))
 
 	else:
 		flash("Error: Please select a .geoJSON file.")
 		return redirect('/index')
 
-# Documentation
-#
-#
-#
-@app.route('/mapView', methods=['GET'])
+# TODO: Documentation Needed
+@app.route('/mapView', methods=['GET', 'POST'])
 def map_view():
-	# TODO: need to pass the geoJSON file (or just the geoJSON file name) to mapView
-	# when redirecting from /upload or /profile
 
-	return render_template('mapView.html', title='View Map')
+	# TODO: Get CLI debugging working so we don't have to use print statements
+	# pdb.set_trace()
+	# creates a header for the geojson that leaflet may or may not need to parse the geojson field in mapView.html
+	
+	geojson_header = {"uploaded-map" : {
+		"type": "geojson",
+		"data": ""
+	}}
+
+	# TODO: Use secure filename and other security protocol before uploading file to server
+	uploaded_file = request.files['file']
+	
+	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
+		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+		uploaded_file.save(file_path)
+		
+		try:
+			opened_file = open(file_path, "r")
+			print("opened file")
+			
+			try:
+				uploaded_file_to_json = json.loads(opened_file.read())
+				print("converted file to json using json.loads(opened_file.read())")
+
+				# TODO: need to make the use of this header conditional, based on if the uploaded file
+				# already has a populated title/type/data field
+				geojson_header["uploaded-map"]["data"] = uploaded_file_to_json
+				print("updated the geojson_header's data field")
+			
+			# TODO: create custom exception for json.loads/json parasing error
+			except Exception as e:
+				print("GeoJSON data corrupted! Please choose a different file.")
+				print(e)
+				return redirect('/index')
+		
+		except FileNotFoundError as e:
+			print(e)
+			return redirect('/index')
+
+		print("rendering mapView.html template")
+		return render_template('mapView.html', title='View Map', geoJSON_data=geojson_header)
+
+	else:
+		flash("Something went wrong. Please select a .geoJSON file")
+		return redirect('/index')
 
 # Documentation
 # Placeholder route for Alyssa's microservice
@@ -103,7 +138,7 @@ def createAccount():
 		if create_form.validate_on_submit():
 
 # 			# !!! This is a major security vulnerability - change before migrating to production build
-# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions
+# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions?
 			response = requests.post('http://localhost:3000/create', json=request.form)
 			
 			if response:

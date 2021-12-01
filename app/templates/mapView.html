@@ -13,6 +13,8 @@
         integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
         crossorigin=""></script>
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        
     </head>
 
     <body>
@@ -30,7 +32,7 @@
         <div id="map-view-container" style="height: 300px;"></div>
 
         <script>
-            let rendered_map = L.map('map-view-container').setView([51.505, -0.09], 18);
+            var geoMap = L.map('map-view-container').setView([51.505, -0.09], 18);
             
             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', 
                 {
@@ -39,10 +41,68 @@
                     tileSize: 512,
                     zoomOffset: -1,
                     accessToken: 'pk.eyJ1IjoiY2pwZHhkZXYiLCJhIjoiY2t2YWFvb2hxMDFpNTJ1bnk3dGxxenhhdSJ9.FKObwabTnBhJEg2PEAfdZw'
-                }).addTo(rendered_map);
+                }).addTo(geoMap);
             
-            let geoJSON_data = JSON.parse('{{ geoJSON_data }}')
-            L.geoJSON(geoJSON_data).addTo(rendered_map)
+            fetch("http://localhost:5000/getGeoJSON?fileName={{file_name}}", {
+                method: "GET",
+                mode:'no-cors',
+                dataType: 'json'
+                // headers: {
+                //     'Accept': 'application/json',
+                //     'Content-Type': 'application/json'
+                // },
+                // body: JSON.stringify({
+                //     fileName: "{{file_name}}" 
+                // }) 
+            })
+            .then(response => response.json())
+            .then(response => {
+                alert(response)
+                L.geoJSON(response).addTo(geoMap)
+
+            })
+            .catch(err => alert(err))
+
+            
+            // var geoFeatureLayer = new L.LayerGroup();
+            // $.ajax({
+            //     dataType: "json",
+            //     url: "{{ geoJSON_path }}",
+            //     success: function(data) {
+            //         $(data.features).each(function(key, data) {
+            //             geoFeatureLayer.addData(data);
+            //         });
+                    
+            //     }
+            // })
+            
+            
+
+            // $.getJSON("{{ geoJSON_path }}", function(data) {
+            //     var geoFeature = L.geoJSON(data["uploaded_map"]).addTo(geoMap)
+            // });
+            // L.geoJSON(geoFeature).addTo(geoMap);
+            
+            // $.getJSON("{{ geoJSON_path }}", function(data) {
+            //     var collection = L.geoJSON(data).addTo(geoMap)
+            // });
+
+
+            // THIS WORKS
+            // var geoFeature = {
+            //     "type": "Feature",
+            //     "properties": {
+            //         "name": "Coors Field",
+            //         "amenity": "Baseball Stadium",
+            //         "popupContent": "This is where the Rockies play!"
+            //     },
+            //     "geometry": {
+            //         "type": "Point",
+            //         "coordinates": [-104.99404, 39.75621]
+            //     }
+            // };
+            // L.geoJSON(geoFeature).addTo(geoMap)
+
         </script>
 
         <form method="GET" action="/location">
@@ -52,6 +112,8 @@
         </form>
 
         <p> {{geoJSON_data}} </p>
+
+        <p> {{ geoJSON_path }} </p>
 
         <hr>
 		{% with messages = get_flashed_messages() %}

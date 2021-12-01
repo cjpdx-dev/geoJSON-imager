@@ -2,6 +2,7 @@
 # Flask imports
 from flask import Flask
 from flask import render_template, flash, redirect, request, jsonify, session, make_response
+from flask import send_file, send_from_directory, safe_join, abort
 
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
@@ -29,37 +30,29 @@ import pdb
 @app.route('/')
 @app.route('/index')
 def index():
+	print("calling index()")
 	return render_template('index.html', title='Home')
 
 
-# TODO: Documentation Needed
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-	uploaded_file = request.files['file']
-	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
+# # TODO: Implement /upload end point for logged in user to upload geoJSON
+# @app.route('/upload', methods=['GET', 'POST'])
+# def upload_file():
+# 	print("calling upload_file()")
+# 	uploaded_file = request.files['file']
+# 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
 		
-		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-		uploaded_file.save(file_path)
+# 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+# 		uploaded_file.save(file_path)
 		
-		return redirect(urlfor('/mapView', file_path='file_path'))
+# 		return redirect(urlfor('/mapView', file_path='file_path'))
 
-	else:
-		flash("Error: Please select a .geoJSON file.")
-		return redirect('/index')
+# 	else:
+# 		flash("Error: Please select a .geoJSON file.")
+# 		return redirect('/index')
 
 # TODO: Documentation Needed
 @app.route('/mapView', methods=['GET', 'POST'])
 def map_view():
-
-	# TODO: Get CLI debugging working so we don't have to use print statements
-	# pdb.set_trace()
-	# creates a header for the geojson that leaflet may or may not need to parse the geojson field in mapView.html
-	
-	geojson_header = {"uploaded-map" : {
-		"type": "geojson",
-		"data": ""
-	}}
-
 	# TODO: Use secure filename and other security protocol before uploading file to server
 	uploaded_file = request.files['file']
 	
@@ -69,16 +62,17 @@ def map_view():
 		
 		try:
 			opened_file = open(file_path, "r")
-			print("opened file")
 			
 			try:
-				uploaded_file_to_json = json.loads(opened_file.read())
-				print("converted file to json using json.loads(opened_file.read())")
+				jsonify(opened_file.read())
+				# uploaded_file_to_json = json.dumps(opened_file.read())
+				# print(uploaded_file_to_json)
+				# dumped_geojson = json.dumps(uploaded_file_to_json)
 
 				# TODO: need to make the use of this header conditional, based on if the uploaded file
 				# already has a populated title/type/data field
-				geojson_header["uploaded-map"]["data"] = uploaded_file_to_json
-				print("updated the geojson_header's data field")
+				# geojson_header["uploaded-map"]["data"] = uploaded_file_to_json
+				# print("updated the geojson_header's data field")
 			
 			# TODO: create custom exception for json.loads/json parasing error
 			except Exception as e:
@@ -91,14 +85,32 @@ def map_view():
 			return redirect('/index')
 
 		print("rendering mapView.html template")
-		return render_template('mapView.html', title='View Map', geoJSON_data=geojson_header)
+		return render_template('mapView.html', title='View Map', file_name=uploaded_file.filename)
 
 	else:
 		flash("Something went wrong. Please select a .geoJSON file")
 		return redirect('/index')
 
+@app.route('/getGeoJSON', methods=['GET'])
+def get_geo_json():
+	try:
+		print("File Name: ", request.args.get("fileName"))
+		file_name = request.args.get("fileName")
+		file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+		
+		opened_json = open(file_path, "r")
+		read_json = opened_json.read()
+
+		loaded_json = json.loads(read_json)
+		print(loaded_json)
+		print(type(loaded_json))
+
+		return jsonify(loaded_json)
+	except FileNotFoundError as e:
+		print(e)
+		return redirect('/index')
+
 # Documentation
-# Placeholder route for Alyssa's microservice
 # If we want to try to do this with async later...
 # ??? https://stackoverflow.com/questions/49822552/python-asyncio-typeerror-object-dict-cant-be-used-in-await-expression
 # ??? https://stackoverflow.com/questions/33357233/when-to-use-and-when-not-to-use-python-3-5-await/33399896#33399896

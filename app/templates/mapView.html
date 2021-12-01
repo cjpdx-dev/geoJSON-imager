@@ -3,7 +3,7 @@
 <html>
     <head>
         <title>{{ title }} - GeoJSON Imager </title>
-        
+        <link rel="shortcut icon" type="image/ico" href="../static/favicon.ico"/>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin=""/>
@@ -47,62 +47,13 @@
                 method: "GET",
                 mode:'no-cors',
                 dataType: 'json'
-                // headers: {
-                //     'Accept': 'application/json',
-                //     'Content-Type': 'application/json'
-                // },
-                // body: JSON.stringify({
-                //     fileName: "{{file_name}}" 
-                // }) 
             })
             .then(response => response.json())
             .then(response => {
-                alert(response)
                 L.geoJSON(response).addTo(geoMap)
-
             })
             .catch(err => alert(err))
-
             
-            // var geoFeatureLayer = new L.LayerGroup();
-            // $.ajax({
-            //     dataType: "json",
-            //     url: "{{ geoJSON_path }}",
-            //     success: function(data) {
-            //         $(data.features).each(function(key, data) {
-            //             geoFeatureLayer.addData(data);
-            //         });
-                    
-            //     }
-            // })
-            
-            
-
-            // $.getJSON("{{ geoJSON_path }}", function(data) {
-            //     var geoFeature = L.geoJSON(data["uploaded_map"]).addTo(geoMap)
-            // });
-            // L.geoJSON(geoFeature).addTo(geoMap);
-            
-            // $.getJSON("{{ geoJSON_path }}", function(data) {
-            //     var collection = L.geoJSON(data).addTo(geoMap)
-            // });
-
-
-            // THIS WORKS
-            // var geoFeature = {
-            //     "type": "Feature",
-            //     "properties": {
-            //         "name": "Coors Field",
-            //         "amenity": "Baseball Stadium",
-            //         "popupContent": "This is where the Rockies play!"
-            //     },
-            //     "geometry": {
-            //         "type": "Point",
-            //         "coordinates": [-104.99404, 39.75621]
-            //     }
-            // };
-            // L.geoJSON(geoFeature).addTo(geoMap)
-
         </script>
 
         <form method="GET" action="/location">

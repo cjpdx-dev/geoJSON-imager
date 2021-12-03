@@ -17,5 +17,3 @@ class CreateAccountForm(FlaskForm):
 	zipCode = StringField('Zip Code: ', validators=[DataRequired()])
 
 	submit = SubmitField('Create Account')
-
-

@@ -1,11 +1,28 @@
 
-{% extends "base.html"}
+{% extends "base.html" %}
 
-{% block profile %}
+{% block main %}
 
-    <h3> User Account </h3>
+    <span class="welcome-message"> 
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <mark>{{ message }}</mark>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </span>
 
-    <h4> Saved Map Data </h4>
+    <h3> Account Details </h3>
+
+        <ul>
+            <li> Username: {{ user_details.username }} </li> 
+            <li> First Name: {{ user_details.firstName }} </li>
+            <li> Last Name: {{ user_details.lastName }} </li>
+            <li> Zipcode: {{ user_details.zipCode }} </li>
+        </ul>
+
+    <h4> Saved Maps</h4>
 
     <ol> 
         <li> Map 1 </li>

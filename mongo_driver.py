@@ -2,12 +2,23 @@ from flask_pymongo import PyMongo
 admin_connection_string = "mongodb+srv://cjpdx:OsY8rrimVnY6vmvB@cluster0.smkta.mongodb.net/db_361?retryWrites=true&w=majority"
 API_connection_string = "mongodb+srv://API_User:7XgQUH0mL9arQd4p@cluster0.smkta.mongodb.net/db_361?retryWrites=true&w=majority"
 
+class AtlasZipcodeWriteException(Exception):
+    msg = "Atlas failed to write zipcode to collection \"zipcodes\" failed. Are you using an admin API key?"
 
-class AtlasWriteException(Exception):
-    error_msg = "Atlas write failed (make sure you are using admin credentials"
+class AtlasZicodeReadException(Exception):
+    msg = "Atlas failed to read zipcode from collection \"zipcodes\" "
 
-class AtlasReadException(Exception):
-    error_msg = "Atlas read failed."
+class AtlasUserWriteException(Exception):
+    msg = "Atlas failed to write zipcode to collection \"zipcodes\" "
+
+class AtlasUserReadException(Exception):
+    msg = "Atlas failed to read user from collection \"users\" "
+
+class UserEmptyFieldException(Exception):
+    msg = "POST user failed. Field was None or empty string"
+
+class UserFieldLengthException(Exception):
+    msg = "POST user failed. Field exceeded maximum length."
 
 class MongoDriver():
 
@@ -32,12 +43,75 @@ class MongoDriver():
             
             return payload
 
-        except AtlasReadException as e:
-            print(e.error_msg)
+        except AtlasZipcodeReadException as e:
+            print(e.msg)
             return None
+
+
+    def post_user(self, username, first_name, last_name, zipcode):
+
+        form_fields = [username, first_name, last_name, zipcode]
+
+        for field in form_fields:
+            if field is None or field == "":
+                print(field + " field was None or empty string. Aborted post_user")
+                raise UserEmptyFieldException()
+
+            if len(field) > 50:
+                print(field + " field length was larger than 50 characters. Aborted post_user")
+                raise UserFieldLengthException() 
+
+        user_document = {
+                            "_id": username,
+                            "firstName": first_name,
+                            "lastName": last_name,
+                            "zipCode": zipcode
+                        }
+
+        try:
+            user_collection = self.db.get_collection("users")
+            user_collection.insert_one(user_document) 
+        except Exception as e:
+            print(e)
+            raise AtlasUserWriteException
+
+    def get_user(self, user_id):
+        if user_id is None or user_id == "":
+                print("user_id was None or empty string. Aborted get_user")
+                raise UserEmptyFieldException()
+        if len(user_id) > 50:
+            print("user_id was greater than 50 characters. Aborted get_user")
+            raise UserFieldLengthException()
+
+        try:
+            print("username: " + user_id)
+            query_result = self.db.users.find_one(user_id)
+            print(query_result)
+            if query_result:
+                print(query_result)
+                payload = { "user_found": True, 
+                            "username": query_result["_id"], 
+                            "firstName": query_result["firstName"], 
+                            "lastName": query_result["lastName"],
+                            "zipCode": query_result["zipCode"]
+                }
+
+            else:
+                payload = { "user_found": False }
+
+            return payload
+
+        except Exception as e:
+            print(e)
+            raise AtlasUserReadException()
+
+
+    def update_user(self, user_id, updated_data):
+        pass
             
+
     def populate_db(self):
-        print("For admins only: Do you want to populate the Atlas database? (Y/N): ")
+        print("For admins only: Do you want to repopulate the Atlas database? (Y/N): ")
         confirm = input()
         if confirm == "Y" or confirm == "y":
             print("Attempting to populate Atlas database...")
@@ -66,9 +140,9 @@ class MongoDriver():
                 try:
                     zipcode_collection.insert_many(document_list)
                 
-                except AtlasWriteException as e:
-                    print(e.error_msg)
-                    raise AtlasWriteException
+                except AtlasZipcodeWriteException as e:
+                    print(e.msg)
+                    raise AtlasZipcodeWriteException
                 
                 finally:
                     raw_file.close()
@@ -82,5 +156,3 @@ class MongoDriver():
         print("Finished populating Atlas zipcode collection")
         return True
 
-
-    

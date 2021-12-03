@@ -10,6 +10,7 @@ from werkzeug.exceptions import HTTPException
 # Flask app imports
 from app import app
 from app import db_driver
+from mongo_driver import AtlasUserWriteException, AtlasUserReadException
 
 # FlaskForm imports
 from app.forms import LoginForm
@@ -26,7 +27,7 @@ import io
 # For command line debugging
 import pdb
 
-# TODO: Documentation Needed
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -34,23 +35,6 @@ def index():
 	return render_template('index.html', title='Home')
 
 
-# # TODO: Implement /upload end point for logged in user to upload geoJSON
-# @app.route('/upload', methods=['GET', 'POST'])
-# def upload_file():
-# 	print("calling upload_file()")
-# 	uploaded_file = request.files['file']
-# 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
-		
-# 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-# 		uploaded_file.save(file_path)
-		
-# 		return redirect(urlfor('/mapView', file_path='file_path'))
-
-# 	else:
-# 		flash("Error: Please select a .geoJSON file.")
-# 		return redirect('/index')
-
-# TODO: Documentation Needed
 @app.route('/mapView', methods=['GET', 'POST'])
 def map_view():
 	# TODO: Use secure filename and other security protocol before uploading file to server
@@ -65,14 +49,6 @@ def map_view():
 			
 			try:
 				jsonify(opened_file.read())
-				# uploaded_file_to_json = json.dumps(opened_file.read())
-				# print(uploaded_file_to_json)
-				# dumped_geojson = json.dumps(uploaded_file_to_json)
-
-				# TODO: need to make the use of this header conditional, based on if the uploaded file
-				# already has a populated title/type/data field
-				# geojson_header["uploaded-map"]["data"] = uploaded_file_to_json
-				# print("updated the geojson_header's data field")
 			
 			# TODO: create custom exception for json.loads/json parasing error
 			except Exception as e:
@@ -90,6 +66,7 @@ def map_view():
 	else:
 		flash("Something went wrong. Please select a .geoJSON file")
 		return redirect('/index')
+
 
 @app.route('/getGeoJSON', methods=['GET'])
 def get_geo_json():
@@ -110,11 +87,7 @@ def get_geo_json():
 		print(e)
 		return redirect('/index')
 
-# Documentation
-# If we want to try to do this with async later...
-# ??? https://stackoverflow.com/questions/49822552/python-asyncio-typeerror-object-dict-cant-be-used-in-await-expression
-# ??? https://stackoverflow.com/questions/33357233/when-to-use-and-when-not-to-use-python-3-5-await/33399896#33399896
-# use app.before_request() and after_request() to handle thread/loop creation?
+# TODO: Implement /location using async
 @app.route('/location', methods=['GET'])
 def get_location_data():
 
@@ -137,8 +110,6 @@ def get_location_data():
 	return redirect('/mapView')
 
 
-# Documentation
-#
 @app.route('/createAccount', methods=['GET', 'POST'])
 def createAccount():
 	
@@ -149,27 +120,38 @@ def createAccount():
 	else:
 		if create_form.validate_on_submit():
 
-# 			# !!! This is a major security vulnerability - change before migrating to production build
-# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions?
-			response = requests.post('http://localhost:3000/create', json=request.form)
-			
-			if response:
-				if response.status_code == 200:
-					flash('Account Created - Please Login')
-					return redirect('/login')
+# 			# !!! Security vulnerability - raw passwords are being sent to SSO service through request form data
+			# !!! Implemented SSL before release
+
+			sso_service_response = requests.post('http://localhost:3000/create', json=request.form)
+			print(sso_service_response)
+			if sso_service_response:
+				if sso_service_response.status_code == 200:
+
+					try:
+						db_driver.post_user(request.form.get("username"), 
+											request.form.get("firstName"),
+											request.form.get("lastName"),
+											request.form.get("zipCode")
+						)
+						flash('Account Created - Please Login')
+						return redirect('/login')
+
+					except AtlasUserWriteException as e:
+						print(e)
+						flash("Database Error: Account Creation Failed. Please Try Again Later.")
 				
-				elif response.status_code == 418:
+				elif sso_service_response.status_code == 418:
 					flash('Username already exists - please choose a different username and try again.')
 				
 				else:
-					flash(str(response.status_code) + 'Sorry, an unknown error occured - your account was not created. Please try again later.')
+					flash(str(sso_service_response.status_code) + 'Service Error: Account Creation Failed - An unknown error occured. Please try again later.')
 			else:
-				flash('Error: no response received from single sign on service')
+				flash('Service Error: no response received from single sign on service')
 		
 		return render_template('createAccount.html', title="Create Account", form=create_form)
 
-# Documentation
-#
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
@@ -179,33 +161,40 @@ def login():
 	else:
 		if form.validate_on_submit():
 			
-			response = requests.post('http://localhost:3000/login', json=request.form)
+			sso_service_response = requests.post('http://localhost:3000/login', json=request.form)
 			
-			# !!! This is a major security vulnerability - change before migrating to production build
-# 			# ASK: Melissa if she is planning on using any type of encryption via certs or sessions
+			# !!! Security vulnerability - raw passwords are being received from SSO service through request form data.
+			# !!! Implemented SSL before release
 			
-			if response and response.status_code == 200:
-				flash('Login Successful')
-				return redirect('/profile')
+			if sso_service_response and sso_service_response.status_code == 200:
+				
+				try:
+					user_data = db_driver.get_user(request.form.get("username"))
+					print(user_data)
+					if user_data["user_found"] is True:
+						flash("Hi " + user_data["firstName"])
+						return render_template('profile.html', title='Profile', user_details=user_data)
+					else:
+						flash('Account not found.')
+						return render_template('login.html', title='Login', form=form)
+				
+				except AtlasUserReadException as e:
+					print(e)
+					flash('Database Error: Please Try Again Later')
+					return render_template('login.html', title='Login', form=form)
 
 		flash('Invalid Username or Password: Please Try Again')
 		return render_template('login.html', title='Login', form=form)
 
-# Documentation
-#
-#
-#
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
 
 	if request.method == 'GET':
+		
 		return render_template('profile.html', title="Profile")
 
-
 # My service
-#
-#
-#
 @app.route('/validate_zip', methods=['GET'])
 def validate_zip():
 	

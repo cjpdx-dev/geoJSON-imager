@@ -1,47 +1,13 @@
+
+THIS README IS OUT OF DATE AND IS CURRENTLY UNDER CONSTRUCTION
+
 About The Project
 
 Built With
 
 Getting Started
 
-	Prerequisites: 
-		pip
-		
-		Python Version 3.7.6
-		
-		MongoDB
-
-			Windows: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
-
-			macOS: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
-
-
 Installation and Setup
-
-	Step 1: Navigate to your preferred installation directory and use the command...
-
-		git clone https://github.com/cjpdx-dev/geoJSON-imager
-
-
-	Step 2: Navigate into the installation directory /geoJSON-imager
-
-
-	Step 3: Once inside the installation directory, run the following commands...
-
-		python3 -m venv venv
-
-		source venv/bin/activate
-
-		pip install -r requirements.txt
-
-	Step 4: Exit the current terminal session and open a new termianl session. Navigate back to the geoJSON-imager directory
-	and run the following command again...
-
-		source venv/bin/activate
-
-	Step 5: Start the flask server using the command...
-
-		flask run
 
 Usage
 
@@ -54,7 +20,7 @@ Usage
 		The application comes preloaded with a mongodb database that
 		runs on port 27017. This database is initialized when the app is run. The application uses a collection named "zipcodes". 
 
-		If the "zipcodes" collection is not found, the application will repopulate the database using the raw text file. Please note: repopulating the database will take some time - attempting to use the server during database population may render a HTTP 503 status code. If this happens, try again after a minute.
+		If the "zipcodes" collection is not found, the application will repopulate the database using the raw text file. Please note: 			repopulating the database will take some time - attempting to use the server during database population may render a HTTP 503 status 		     code. If this happens, try again after a minute.
 
 		---------------------------------------------------------------------------------
 

@@ -42,7 +42,7 @@
                     zoomOffset: -1,
                     accessToken: 'pk.eyJ1IjoiY2pwZHhkZXYiLCJhIjoiY2t2YWFvb2hxMDFpNTJ1bnk3dGxxenhhdSJ9.FKObwabTnBhJEg2PEAfdZw'
                 }).addTo(geoMap);
-            alert("{{ file_name }}")
+
             fetch("http://localhost:5000/getGeoJSON?fileName={{file_name}}", {
                 method: "GET",
                 mode:'no-cors',

@@ -39,7 +39,6 @@ def index():
 def map_view():
 	# TODO: Use secure filename and other security protocol before uploading file to server
 
-
 	uploaded_file = request.files['file']
 
 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
@@ -73,7 +72,6 @@ def map_view():
 @app.route('/getGeoJSON', methods=['GET'])
 def get_geo_json():
 	try:
-
 		file_name = request.args.get("fileName")
 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
 		
@@ -101,7 +99,7 @@ def get_location_data():
 	current_view_file_name = request.args.get("file-name")
 
 	zip = request.args.get('zipcode')
-	api_address = "http://localhost:3000/location?zip={}".format(zip)
+	api_address = "http://localhost:8000/location?zip={}".format(zip)
 	print(api_address)
 
 	# ??? use requests or python native urllib.request.urlopen(url)?
@@ -109,12 +107,10 @@ def get_location_data():
 	print(location_response)
 
 	if location_response:
-		print("Recieved response from port 3000")
-		print("current weather: ")
 		location_data = location_response.json()
 		# print(location_data)
 
-		flash("Feels Like: " + str(location_data["weather"]["current"]["main"]["feels_like"]) + " degrees")
+		flash("Feels Like: " + str(location_data["weather"]["current"]["main"]["feels_like"]) + " degrees Fahrenheit")
 	
 	return render_template('mapView.html', title="View Map", file_name=current_view_file_name)
 

@@ -38,8 +38,10 @@ def index():
 @app.route('/mapView', methods=['GET', 'POST'])
 def map_view():
 	# TODO: Use secure filename and other security protocol before uploading file to server
+
+
 	uploaded_file = request.files['file']
-	
+
 	if uploaded_file.filename != '' and '.geojson' in uploaded_file.filename:
 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
 		uploaded_file.save(file_path)
@@ -71,7 +73,7 @@ def map_view():
 @app.route('/getGeoJSON', methods=['GET'])
 def get_geo_json():
 	try:
-		print("File Name: ", request.args.get("fileName"))
+
 		file_name = request.args.get("fileName")
 		file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
 		
@@ -79,17 +81,24 @@ def get_geo_json():
 		read_json = opened_json.read()
 
 		loaded_json = json.loads(read_json)
-		print(loaded_json)
-		print(type(loaded_json))
 
 		return jsonify(loaded_json)
+
 	except FileNotFoundError as e:
 		print(e)
 		return redirect('/index')
 
 # TODO: Implement /location using async
+# TODO: I should implement the call to Alyssa's service on the front end in mapView.html as
+# I'm starting to not see any reason to use a /location route for this. For now I will just
+# need to pass the uploaded file through again a second time when /location is called.
 @app.route('/location', methods=['GET'])
 def get_location_data():
+
+	# TODO: see above todo: this is a stopgap messure for getting the originally uploaded file 
+	# path to carry over to the re-rendered page so that we don't get a invalid key error in the
+	# /mapView endpoint
+	current_view_file_name = request.args.get("file-name")
 
 	zip = request.args.get('zipcode')
 	api_address = "http://localhost:3000/location?zip={}".format(zip)
@@ -103,11 +112,11 @@ def get_location_data():
 		print("Recieved response from port 3000")
 		print("current weather: ")
 		location_data = location_response.json()
+		# print(location_data)
 
-		flash("Current Weather: " + str(location_data["weather"]["current"]))
-		flash("Five Day Forecast: " + str(location_data["weather"]["five_day"]))
+		flash("Feels Like: " + str(location_data["weather"]["current"]["main"]["feels_like"]) + " degrees")
 	
-	return redirect('/mapView')
+	return render_template('mapView.html', title="View Map", file_name=current_view_file_name)
 
 
 @app.route('/createAccount', methods=['GET', 'POST'])

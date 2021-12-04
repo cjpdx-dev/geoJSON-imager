@@ -25,13 +25,15 @@ class MongoDriver():
     def __init__(self, app):
         # TODO: add error handling for bad connection
         # TODO: Look into coding a fix for Melissa's error:
-        # https://stackoverflow.com/questions/54484890/ssl-handshake-issue-with-pymongo-on-python3/54511693#54511693
+        #       https://stackoverflow.com/questions/54484890/ssl-handshake-issue-with-pymongo-on-python3/54511693#54511693
         
         self.driver_client = PyMongo(app, API_connection_string)
         self.db = self.driver_client.db
 
+
     def test_db(self, test_param):
         return self.db.zipcodes.find_one(test_param)
+
 
     def find_zipcode(self, zipcode):
         try:
@@ -79,16 +81,16 @@ class MongoDriver():
         if user_id is None or user_id == "":
                 print("user_id was None or empty string. Aborted get_user")
                 raise UserEmptyFieldException()
+        
         if len(user_id) > 50:
             print("user_id was greater than 50 characters. Aborted get_user")
             raise UserFieldLengthException()
 
         try:
-            print("username: " + user_id)
             query_result = self.db.users.find_one(user_id)
-            print(query_result)
+
             if query_result:
-                print(query_result)
+
                 payload = { "user_found": True, 
                             "username": query_result["_id"], 
                             "firstName": query_result["firstName"], 
@@ -111,6 +113,7 @@ class MongoDriver():
             
 
     def populate_db(self):
+        
         print("For admins only: Do you want to repopulate the Atlas database? (Y/N): ")
         confirm = input()
         if confirm == "Y" or confirm == "y":
@@ -121,12 +124,11 @@ class MongoDriver():
             return False
 
         file_path = "local_data/US.txt"
-        document_list = []
-        zipcode_collection = self.db.get_collection("zipcodes")
 
         try:
             with open(file_path, "rt") as raw_file:
 
+                document_list = []
                 for line in raw_file:
                     current_line_data = line.split("\t")
                     document_list.append(
@@ -138,12 +140,13 @@ class MongoDriver():
                     )
 
                 try:
+                    zipcode_collection = self.db.get_collection("zipcodes")
                     zipcode_collection.insert_many(document_list)
                 
                 except AtlasZipcodeWriteException as e:
                     print(e.msg)
                     raise AtlasZipcodeWriteException
-                
+
                 finally:
                     raw_file.close()
 
@@ -155,4 +158,3 @@ class MongoDriver():
 
         print("Finished populating Atlas zipcode collection")
         return True
-

@@ -7,7 +7,6 @@ from config import Config
 from mongo_driver import MongoDriver
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
 
 CORS(app)
